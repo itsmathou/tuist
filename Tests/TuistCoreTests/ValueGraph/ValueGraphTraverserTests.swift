@@ -21,7 +21,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.target(path: "/", name: "App")
 
         // Then
-        XCTAssertEqual(got, app)
+        XCTAssertEqual(got.map(\.target), app)
     }
 
     func test_targets() {
@@ -37,7 +37,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.targets(at: "/")
 
         // Then
-        XCTAssertEqual(got, [app, framework])
+        XCTAssertEqual(got.map(\.target), [app, framework])
     }
 
     func test_testTargetsDependingOn() {
@@ -67,7 +67,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.testTargetsDependingOn(path: path, name: framework.name)
 
         // Then
-        XCTAssertEqual(got, [uiTests, unitTests])
+        XCTAssertEqual(got.map(\.target), [uiTests, unitTests])
     }
 
     func test_directStaticDependencies() {
@@ -120,7 +120,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.directTargetDependencies(path: project.path, name: a.name)
 
         // Then
-        XCTAssertEqual(got, [b])
+        XCTAssertEqual(got.map(\.target), [b])
     }
 
     func test_resourceBundleDependencies_returns_an_empty_list_when_a_dependency_can_host_resources() {
@@ -178,7 +178,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.resourceBundleDependencies(path: project.path, name: app.name)
 
         // Then
-        XCTAssertEqual(got, [bundle])
+        XCTAssertEqual(got.map(\.target), [bundle])
     }
 
     func test_resourceBundleDependencies_when_the_target_doesnt_support_resources() {
@@ -228,7 +228,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let result = subject.resourceBundleDependencies(path: project.path, name: app.name)
 
         // Then
-        XCTAssertEqual(result.map(\.name), [
+        XCTAssertEqual(result.map(\.target.name), [
             "Bundle1",
         ])
     }
@@ -257,7 +257,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let result = subject.resourceBundleDependencies(path: projectB.path, name: app.name)
 
         // Then
-        XCTAssertEqual(result.map(\.name), [
+        XCTAssertEqual(result.map(\.target.name), [
             "Bundle1",
         ])
     }
@@ -289,7 +289,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let result = subject.resourceBundleDependencies(path: projectB.path, name: app.name)
 
         // Then
-        XCTAssertEqual(result.map(\.name), [
+        XCTAssertEqual(result.map(\.target.name), [
             "ResourceBundle",
         ])
     }
@@ -328,7 +328,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let result = subject.resourceBundleDependencies(path: projectB.path, name: app.name)
 
         // Then
-        XCTAssertEqual(result.map(\.name), [
+        XCTAssertEqual(result.map(\.target.name), [
             "ResourceBundle1",
             "ResourceBundle2",
         ])
@@ -373,12 +373,12 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let staticFramework2Results = subject.resourceBundleDependencies(path: projectA.path, name: staticFramework2.name)
 
         // Then
-        XCTAssertEqual(appResults.map(\.name), [])
-        XCTAssertEqual(dynamicFrameworkResults.map(\.name), [
+        XCTAssertEqual(appResults.map(\.target.name), [])
+        XCTAssertEqual(dynamicFrameworkResults.map(\.target.name), [
             "ResourceBundle",
         ])
-        XCTAssertEqual(staticFramework1Results.map(\.name), [])
-        XCTAssertEqual(staticFramework2Results.map(\.name), [])
+        XCTAssertEqual(staticFramework1Results.map(\.target.name), [])
+        XCTAssertEqual(staticFramework2Results.map(\.target.name), [])
     }
 
     func test_target_from_dependency() {
@@ -460,7 +460,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
                                                              frameworkB.name: frameworkB]],
                                     dependencies: dependencies)
         let subject = ValueGraphTraverser(graph: graph)
-
+        
         // When
         let got = subject.filterDependencies(from: .target(name: app.name, path: project.path),
                                              test: { _ in true },
@@ -500,7 +500,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.appExtensionDependencies(path: project.path, name: target.name)
 
         // Then
-        XCTAssertEqual(got.first?.name, "AppExtension")
+        XCTAssertEqual(got.first?.target.name, "AppExtension")
     }
 
     func test_appExtensionDependencies_when_dependencyIsStickerPackExtension() throws {
@@ -523,7 +523,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let got = subject.appExtensionDependencies(path: project.path, name: target.name)
 
         // Then
-        XCTAssertEqual(got.first?.name, "StickerPackExtension")
+        XCTAssertEqual(got.first?.target.name, "StickerPackExtension")
     }
 
     func test_appExtensionDependencies_when_dependencyIsMessageExtension() throws {
@@ -546,7 +546,7 @@ final class ValueGraphTraverserTests: TuistUnitTestCase {
         let result = subject.appExtensionDependencies(path: project.path, name: app.name)
 
         // Then
-        XCTAssertEqual(result.map(\.name), [
+        XCTAssertEqual(result.map(\.target.name), [
             "MessageExtension",
         ])
     }

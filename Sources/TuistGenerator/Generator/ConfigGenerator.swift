@@ -225,16 +225,16 @@ final class ConfigGenerator: ConfigGenerating {
         }
 
         let targetDependencies = graphTraverser.directTargetDependencies(path: projectPath, name: target.name)
-        let appDependency = targetDependencies.first { $0.product.canHostTests() }
+        let appDependency = targetDependencies.first { $0.target.product.canHostTests() }
 
         guard let app = appDependency else {
             return [:]
         }
 
         var settings: SettingsDictionary = [:]
-        settings["TEST_TARGET_NAME"] = .string("\(app.name)")
+        settings["TEST_TARGET_NAME"] = .string("\(app.target.name)")
         if target.product == .unitTests {
-            settings["TEST_HOST"] = .string("$(BUILT_PRODUCTS_DIR)/\(app.productNameWithExtension)/\(app.productName)")
+            settings["TEST_HOST"] = .string("$(BUILT_PRODUCTS_DIR)/\(app.target.productNameWithExtension)/\(app.target.productName)")
             settings["BUNDLE_LOADER"] = "$(TEST_HOST)"
         }
 
@@ -277,12 +277,12 @@ final class ConfigGenerator: ConfigGenerating {
         }
 
         let targetDependencies = graphTraverser.directTargetDependencies(path: projectPath, name: target.name)
-        guard let watchExtension = targetDependencies.first(where: { $0.product == .watch2Extension }) else {
+        guard let watchExtension = targetDependencies.first(where: { $0.target.product == .watch2Extension }) else {
             return [:]
         }
 
         return [
-            "IBSC_MODULE": .string(watchExtension.productName),
+            "IBSC_MODULE": .string(watchExtension.target.productName),
         ]
     }
 }
